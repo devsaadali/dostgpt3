@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button, Paper } from "@mui/material";
 
-const ConfirmPage = () => {
+const ConfirmComponent = () => {
   return (
     <Box
       sx={{
@@ -40,7 +40,7 @@ const ConfirmPage = () => {
         </Box>
         <Box
           sx={{
-            border: "1px solid green",
+            // border: "1px solid green",
             width: "fit-content",
             marginTop: "15px",
             marginBottom: "25px",
@@ -89,4 +89,4 @@ const ConfirmPage = () => {
   );
 };
 
-export default ConfirmPage;
+export default ConfirmComponent;

@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { Button, Paper } from "@mui/material";
 import { TextField } from "@mui/material";
 
-const Recover = () => {
+const RecoverComponent = () => {
   const [email, setEmail] = useState("");
 
   const handleChange = (e) => {
@@ -142,4 +142,4 @@ const Recover = () => {
   );
 };
 
-export default Recover;
+export default RecoverComponent;

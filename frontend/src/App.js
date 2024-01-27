@@ -25,10 +25,15 @@ import { Provider } from "react-redux";
 import store from "./store";
 import Pricing from "./containers/base/Pricing";
 import AppSidebar from "./components/AppSidebar";
-import NewProject from "./containers/base/NewProject";
-import Confirm from "./components/Confirm";
-import Recover from "./components/Recover";
-import ProjectView from "./components/ProjectView";
+import NewProjectPage from "./containers/base/NewProjectPage";
+import ConfirmPage from "./containers/base/ConfirmPage";
+// import Recover from "./components/Recover";
+import RecoverPage from "./containers/base/RecoverPage";
+import ProjectViewPage from "./containers/base/ProjectViewPage";
+import SignUpPage from "./containers/base/SignUpPage";
+import SignInPage from "./containers/base/SignInPage";
+import UpgradePage from "./containers/base/UpgradePage";
+import SettingsPage from "./containers/base/SettingsPage";
 
 const App = () => {
   const mounted = useRef();
@@ -88,11 +93,15 @@ const App = () => {
             <Route exact path="/activate" element={<Activate />} />
             {/* Mine */}
             <Route exact path="/pricing" element={<Pricing />} />
-            <Route exact path="/sidebar" element={<AppSidebar />} />
-            <Route exact path="/new-project" element={<NewProject />} />
-            <Route exact path="/confirm" element={<Confirm />} />
-            <Route exact path="/recover" element={<Recover />} />
-            <Route exact path="/project-view" element={<ProjectView />} />
+            {/* <Route exact path="/sidebar" element={<AppSidebar />} /> */}
+            <Route exact path="/new-project" element={<NewProjectPage />} />
+            <Route exact path="/project-view" element={<ProjectViewPage />} />
+            <Route exact path="/signup-page" element={<SignUpPage />} />
+            <Route exact path="/signin-page" element={<SignInPage />} />
+            <Route exact path="/confirm" element={<ConfirmPage />} />
+            <Route exact path="/recover" element={<RecoverPage />} />
+            <Route exact path="/upgrade" element={<UpgradePage />} />
+            <Route exact path="/settings" element={<SettingsPage />} />
           </Routes>
         </Layout>
       </Router>

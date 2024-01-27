@@ -56,26 +56,7 @@ INSTALLED_APPS = [
     'pdf_chat',  # Add this line to include the 'pdf_chat' app
 ]
 
-# INSTALLED_APPS = [
-#     "django.contrib.admin",
-#     "django.contrib.auth",
-#     "django.contrib.contenttypes",
-#     "django.contrib.sessions",
-#     "django.contrib.messages",
-#     "django.contrib.staticfiles",
-#     # Downloaded Apps #
-#     # > djangorestframework
-#     "rest_framework",
-#     # > drf_social_oauth2
-#     "oauth2_provider",
-#     "social_django",
-#     "drf_social_oauth2",
-#     # > django-cors-headers
-#     "corsheaders",
-#     # Custom apps
-#     "authentication.apps.AuthenticationConfig",
-#     'subscription.apps.SubscriptionConfig',
-# ]
+
 MIDDLEWARE = [
   "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -86,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "yt_summarizer.urls"
@@ -204,12 +186,12 @@ AUTHENTICATION_BACKENDS = (
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ALLOWED_ORIGINS  = [
-#     "http://localhost:8000",
-#     "http://127.0.0.1:3000",
+CORS_ALLOWED_ORIGINS  = [
+    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 
-# ]
-
+]
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (

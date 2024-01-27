@@ -17,7 +17,7 @@ import { Button } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import DropdownButton from "./DropdownButton";
 import SidebarTopSection from "./SidebarTopSection";
-import NewProjectPage from "./NewProjectPage";
+// import NewProjectPage from "./NewProjectPage";
 import SettingsComponent from "./SettingsComponent";
 import SignUpComponent from "./SignUpComponent";
 import SignInComponent from "./SignInComponent";
@@ -66,7 +66,7 @@ function AppSidebar() {
         <SidebarTopSection />
         <DropdownButton />
       </Drawer>
-      <Box
+      {/* <Box
         component="main"
         sx={{
           display: "flex",
@@ -78,13 +78,13 @@ function AppSidebar() {
           // border: "1px solid",
         }}
       >
-        {/* <NewProjectPage /> */}
-        {/* <SettingsComponent /> */}
-        {/* <SignUpComponent /> */}
-        {/* <SignInComponent /> */}
-        {/* <UpgradeComponent /> */}
+        <NewProjectPage />
+        <SettingsComponent />
+        <SignUpComponent />
+        <SignInComponent />
+        <UpgradeComponent />
         <ProjectView />
-      </Box>
+      </Box> */}
     </Box>
   );
 }
