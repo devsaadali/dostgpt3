@@ -42,9 +42,9 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     
 
-    # Payment specific info
-    stripe_customer_id = models.CharField(max_length=255, default=False)
-    stripe_account_id = models.CharField(max_length=255, default=False)
+    # # Payment specific info
+    # stripe_customer_id = models.CharField(max_length=255, default=False)
+    # stripe_account_id = models.CharField(max_length=255, default=False)
 
     # Inheritance
     objects = UserAccountManager()

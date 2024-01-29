@@ -1,7 +1,43 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
+import { axios_get_call } from "./AxiosCall";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const ProjectView = () => {
+  const [alert, set_alert] = useState(false);
+  const [loading, set_loading] = useState(false);
+  const get_pdf = async () => {
+    console.log("get_pdf");
+    let url = "/get-pdf/";
+    let pdf_id = 12345;
+
+    try {
+      const response = await axios_get_call(
+        url,
+        pdf_id,
+        set_loading,
+        set_alert
+      );
+
+      if (response.status === 200) {
+        console.log("File RETRIEVED successfully");
+
+        // <Alert severity="error">File uploaded successfully.</Alert>;
+      } else {
+        console.error("File RETRIEVAL failed");
+        // <Alert severity="error">File upload failed.</Alert>;
+      }
+    } catch (error) {
+      console.error("Error RETRIEVING file", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("ProjectView useEffect");
+    get_pdf();
+  }, []);
   return (
     <Box
       component="main"
