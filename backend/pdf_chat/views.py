@@ -54,8 +54,8 @@ def chat_view(request, pdfId):
 
         # return Response(request)
         # response = FileResponse(pdf_file.file, content_type='application/pdf')
-        # return response
-        return Response({'langchain_response': response})
+        return response
+        # return Response({'langchain_response': response})
 
         # try:
         #     pdf_file = PDFFile.objects.get(id=request.data['pdf_id'])
