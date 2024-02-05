@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import PDFFile
 from .serializers import PDFFileSerializer
+from django.http import FileResponse 
+from django.http import HttpResponse
 # from .openai_utils import generate_openai_response  # Import the OpenAI function
+from .langchain import langchain_openai
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -18,33 +21,55 @@ def pdf_upload_view(request):
 
         return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        #     # Extract PDF content and user question from the request or form data
-        #     pdf_content = file_serializer.data.get('file')  # Assuming 'file' is the field name for PDF content
-        #     user_question = request.data.get('user_question')
-
-        #     # Get your OpenAI API key from your Django settings or secure storage
-        #     openai_api_key = "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"
-
-        #     # Call the OpenAI function to get the generated answer
-        #     # answer = generate_openai_response(openai_api_key, pdf_content, user_question)
-
-        #     # Include the OpenAI-generated answer in the response
-        #     return Response({'pdf_data': file_serializer.data, 'openai_answer': answer}, status=status.HTTP_201_CREATED)
-
-        # return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # return Response('REACHED TO THE VIEW...')
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-# def get_pdf_view(request, pk):
-def get_pdf_view(request):
+def get_pdf_view(request, pdfId):
     try:
-        # pdf_file = PDFFile.objects.get(pk=pk)
-        # pdf_file = PDFFile.objects.get([-1])       // This does not work
-        # pdf_file = PDFFile.objects.latest('uploaded_at')
-        pdf_file = PDFFile.objects.all()
+        pdf_file = PDFFile.objects.get(id=pdfId)
     except PDFFile.DoesNotExist:
         return Response({'error': 'PDF file not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    response = FileResponse(pdf_file.file, content_type='application/pdf')
+    # response['Content-Disposition'] = f'inline; filename="{pdf_file.filename}"'
 
-    serializer = PDFFileSerializer(pdf_file, many=True)
-    return Response(serializer.data)
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+# def chat_view(request):
+def chat_view(request, pdfId):
+    if request.method == 'GET':
+        try:
+            pdf_file = PDFFile.objects.get(id=pdfId)
+        except PDFFile.DoesNotExist:
+            return Response({'error': 'PDF file not found'}, status=status.HTTP_404_NOT_FOUND)
+        # file_serializer = PDFFileSerializer(data=request.data)
+        # print('File IS ---> ', pdf_file.file)
+        
+        response = langchain_openai(pdf_file.file)
+        # response = FileResponse(pdf_file.file, content_type='application/pdf')
+        # response['Content-Disposition'] = f'inline; filename="{pdf_file.filename}"'
+
+        # return Response(request)
+        # response = FileResponse(pdf_file.file, content_type='application/pdf')
+        # return response
+        return Response({'langchain_response': response})
+
+        # try:
+        #     pdf_file = PDFFile.objects.get(id=request.data['pdf_id'])
+        # except PDFFile.DoesNotExist:
+        #     return Response({'error': 'PDF file not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # try:
+        #     openai = ChatOpenAI(pdf_file.file)
+        # except:
+        #     return Response({'error': 'Could not load PDF file'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # try:
+        #     response = openai.generate_response(request.data['text'])
+        # except:
+        #     return Response({'error': 'Could not generate response'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # return Response({'response': response}, status=status.HTTP_201_CREATED)

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 const NewProject = () => {
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [pdfID, setpdfID] = useState(null);
   const [alert, set_alert] = useState(false);
   const [loading, set_loading] = useState(false);
 
@@ -34,10 +35,16 @@ const NewProject = () => {
           // response.data.id = response.data.id;
           console.log(
             "This is the ID of the uploaded file: ",
-            response.data.pdf_data["id"]
+            response.data.pdf_data["file"]
           );
           // setUploadedFile(response.data);
-          // navigate("/project-view");
+          setpdfID(response.data.pdf_data["id"]);
+          navigate("/project-view", {
+            state: {
+              pdfID: response.data.pdf_data["id"],
+              // pdfName: response.data.pdf_data["file"],
+            },
+          });
           // <Alert severity="error">File uploaded successfully.</Alert>;
         } else {
           console.error("File upload failed");

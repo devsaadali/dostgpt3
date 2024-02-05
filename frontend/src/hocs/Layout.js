@@ -44,7 +44,7 @@ const Layout = ({ load_user, children }) => {
           </>
         ) : (
           <>
-            <Navbar />
+            {/* <Navbar /> */}
             <Box sx={{ mb: { xs: "130px", sm: "130px", md: "77px" } }}></Box>
             {children}
             {/* <Footer /> */}
