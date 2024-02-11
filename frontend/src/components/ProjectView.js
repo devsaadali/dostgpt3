@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import { axios_get_call, axios_chat_call } from "./AxiosCall";
 import PDFViewer from "pdf-viewer-reactjs";
 import { useLocation } from "react-router-dom";
@@ -18,6 +18,9 @@ const ProjectView = () => {
   const [chatResponse, setChatResponse] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [sent, setSent] = useState(false);
+  const [chatState, setChatState] = useState([]);
+  let chat_list = [];
   // let page = 1;
 
   function nextPage() {
@@ -49,8 +52,6 @@ const ProjectView = () => {
     } catch (error) {
       console.error("Error RETRIEVING file", error);
     }
-    // console.log("CALLING SEND_MESSAGE");
-    // send_message();
   };
 
   const handleSubmit = (event) => {
@@ -64,6 +65,13 @@ const ProjectView = () => {
 
     if (question !== "") {
       try {
+        chat_list = chatState;
+        chat_list.push(question);
+        setChatState(chat_list);
+        console.log("chat_list", chat_list);
+        console.log("chatState", chatState);
+        // setSent(true);
+        setQuestion("");
         const response = await axios_chat_call(
           url,
           pdfID,
@@ -73,9 +81,12 @@ const ProjectView = () => {
         );
 
         if (response.status === 200) {
+          chat_list.push(response.data.answer);
+          setChatState(chat_list);
           setChatResponse(response.data);
           console.log("RESPONSE VALUE IS: ", response);
-          // console.log("CHATRESPONSE VALUE IS: ", chatResponse);
+          console.log("CHAT LIST VALUE IS: ", chat_list);
+          console.log("CHAT STATE VALUE IS: ", chatState);
         } else {
           console.error("Chat send failed");
         }
@@ -84,6 +95,8 @@ const ProjectView = () => {
       }
     }
   };
+
+  useEffect(() => {}, []);
 
   return (
     <Box
@@ -115,86 +128,75 @@ const ProjectView = () => {
             // border: "2px solid red",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-end",
-            // alignItems: "center",
-            // paddingX: "20px",
-            // paddingY: "10px",
-            // overflow: "auto",
           }}
         >
           <Box
             sx={{
-              overflow: "scroll",
+              overflow: "auto",
               height: "100%",
               // border: "1px solid black",
               marginX: "10px",
+              display: "flex",
+              // flexDirection: "column",
+              // justifyContent: "flex-end",
+              // alignItems: "flex-end",
             }}
           >
-            {chatResponse && (
-              <Box
-                sx={
-                  {
-                    // border: "2px solid orange",
-                    // padding: "5px",
-                    // overflow: "auto",
-                    // background: "blue",
-                  }
+            <Box
+              sx={{
+                width: "100%",
+              }}
+            >
+              {chatState.map((message, index) => {
+                if (index % 2 === 0) {
+                  return (
+                    <Paper sx={{ padding: "5px", width: "100%" }}>
+                      <Typography
+                        sx={{
+                          background: "rgb(83, 135, 140)",
+                          color: "white",
+                          paddingX: "20px",
+                          paddingY: "10px",
+                          borderRadius: "5px",
+                          width: "100%",
+                        }}
+                      >
+                        <strong style={{ color: "white" }}>You:</strong>
+                        {"   "}
+                        {chatState[index]}
+                      </Typography>
+                    </Paper>
+                  );
+                } else {
+                  return (
+                    <Paper
+                      sx={{ padding: "5px", marginY: "5px", width: "100%" }}
+                    >
+                      <Typography
+                        sx={{
+                          background: "rgb(71, 80, 99)",
+                          color: "white",
+                          paddingX: "20px",
+                          paddingY: "10px",
+                          // marginY: "10px",
+                          borderRadius: "5px",
+                          width: "100%",
+                        }}
+                      >
+                        <strong style={{ color: "white" }}>Response:</strong>
+                        {"   "}
+                        {/* {chatResponse.answer} */}
+                        {chatState[index]}
+                      </Typography>
+                    </Paper>
+                  );
                 }
-              >
-                <Typography
-                  sx={{
-                    background: "rgb(83, 135, 140)",
-                    color: "white",
-                    paddingX: "20px",
-                    paddingY: "10px",
-                    // marginTop: "10px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  <strong style={{ color: "white" }}>You:</strong>
-                  {"   "}
-                  {chatResponse.question}
-                </Typography>
-                <Typography
-                  sx={{
-                    background: "rgb(71, 80, 99)",
-                    color: "white",
-                    paddingX: "20px",
-                    paddingY: "10px",
-                    marginY: "10px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  <strong style={{ color: "white" }}>Response:</strong>
-                  {"   "}
-                  {chatResponse.answer}
-                </Typography>
-              </Box>
-            )}
-
-            {/* {chatResponse && (
-            <Box>
-              <p>
-                <strong>You:</strong> {question}
-              </p>
-              <p>
-                <strong>Response:</strong> {chatResponse}
-              </p>
+              })}
             </Box>
-          )} */}
           </Box>
           <Box
             className="input-section"
             sx={{
-              // margin: "20px",
-              // border: "10px soild green",
-              // padding: "10px",
-              // backgroundColor: "yellow",
-              // display: "flex",
-              // flexDirection: "row",
-              // alignItems: "center",
-              // justifyContent: "space-between",
-              // height: "45px",
               marginX: "10px",
             }}
           >
@@ -206,7 +208,6 @@ const ProjectView = () => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 height: "45px",
-                // marginX: "5px",
                 marginBottom: "2px",
               }}
             >
@@ -231,7 +232,6 @@ const ProjectView = () => {
                   padding: "0px",
                   minWidth: "10%",
                   minHeight: "100%",
-                  // color: "gray",
                 }}
                 onClick={send_message}
               >
@@ -249,20 +249,16 @@ const ProjectView = () => {
             overflow: "auto",
           }}
         >
-          {/* {pdfData && ( */}
-          {/* <PDFViewer
+          <PDFViewer
             hideZoom
             hideNavbar
             hideRotation
-            // page={page}
-            // onNextBtnClick={nextPage}
             onLoadSuccess={handleLoadSuccess}
             document={{
               url: `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${pdfID}/`,
             }}
             scale={0.9}
-          /> */}
-          {/* )} */}
+          />
         </Box>
       </Box>
     </Box>
@@ -270,126 +266,3 @@ const ProjectView = () => {
 };
 
 export default ProjectView;
-
-// import React, { useState, useEffect } from "react";
-// import { Box } from "@mui/material";
-// import { axios_get_call, axios_chat_call } from "./AxiosCall";
-// import PDFViewer from "pdf-viewer-reactjs";
-// import { useLocation } from "react-router-dom";
-// // import axios from "./axios";
-
-// const ProjectView = () => {
-//   const [pdfData, setPdfData] = useState(null);
-//   const [alert, setAlert] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const location = useLocation();
-//   const [pdfID, setPdfID] = useState(location.state.pdfID);
-//   const [pdfFile, setPdfFile] = useState(location.state.pdfFile);
-//   // const pdfUrl = `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${pdfID}/`;
-//   const [chatResponse, setChatResponse] = useState(null);
-
-//   const get_pdf = async () => {
-//     let url = "/get-pdf/";
-//     try {
-//       const response = await axios_get_call(url, pdfID, setLoading, setAlert);
-
-//       if (response.status === 200) {
-//         console.log("File RETRIEVED successfully", response);
-//         setPdfData(response);
-//       } else {
-//         console.error("File RETRIEVAL failed");
-//       }
-//     } catch (error) {
-//       console.error("Error RETRIEVING file", error);
-//     }
-//     console.log("CALLING SEND_MESSAGE");
-//     send_message();
-//   };
-
-//   const send_message = async () => {
-//     let url = "/send-message/";
-//     const user_question = "What is this document about?";
-//     console.log("In SEND_MESSAGE FUNCTION");
-
-//     try {
-//       const response = await axios_chat_call(
-//         url,
-//         pdfID,
-//         user_question,
-//         setLoading,
-//         setAlert
-//       );
-
-//       if (response.status === 201) {
-//         console.log("Chat sent successfully");
-//         setChatResponse(response);
-//         // response.data.id = response.data.id;
-//         // console.log(
-//         //   "This is the ID of the uploaded file: ",
-//         //   response.data.pdf_data["file"]
-//         // );
-//         // setUploadedFile(response.data);
-//         // setpdfID(response.data.pdf_data["id"]);
-//         // navigate("/project-view", {
-//         //   state: {
-//         //     pdfID: response.data.pdf_data["id"],
-//         //     // pdfName: response.data.pdf_data["file"],
-//         //   },
-//         // });
-//         // <Alert severity="error">File uploaded successfully.</Alert>;
-//       } else {
-//         console.error("Chat send failed");
-//         // <Alert severity="error">File upload failed.</Alert>;
-//       }
-//     } catch (error) {
-//       console.error("Error sending chat", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     get_pdf();
-//   }, []);
-
-//   return (
-//     <Box
-//       component="main"
-//       sx={{
-//         display: "flex",
-//         flexGrow: 1,
-//         background: "#FFF",
-//         minHeight: "88vh",
-//         justifyContent: "center",
-//       }}
-//     >
-//       <Box
-//         className="project-view-main"
-//         sx={{
-//           display: "flex",
-//           justifyContent: "center",
-//           alignItems: "center",
-//           height: "100%",
-//           width: "100%",
-//         }}
-//       >
-//         <Box
-//           className="chat-section"
-//           sx={{ width: "50%", height: "100%", border: "2px solid red" }}
-//         ></Box>
-//         <Box
-//           className="document-view"
-//           sx={{ width: "50%", height: "100%", border: "2px solid blue" }}
-//         >
-//           {pdfData && (
-//             <PDFViewer
-//               document={{
-//                 url: `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${pdfID}/`,
-//               }}
-//             />
-//           )}
-//         </Box>
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default ProjectView;
