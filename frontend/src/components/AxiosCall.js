@@ -114,7 +114,7 @@ export const axios_post_call = async (url, file, set_loading, set_alert) => {
   set_loading(true);
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("pdf_file", file);
 
   const config = {
     headers: {
@@ -151,7 +151,7 @@ export const axios_post_call = async (url, file, set_loading, set_alert) => {
 
 export const axios_chat_call = async (
   url,
-  pdfId,
+  chatId,
   user_question,
   set_loading,
   set_alert
@@ -175,7 +175,7 @@ export const axios_chat_call = async (
       `${process.env.REACT_APP_BACKEND_URL}${url}`,
       {
         question: user_question,
-        pdfId: pdfId,
+        chatId: chatId,
       },
       config
     );

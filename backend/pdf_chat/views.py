@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import PDFFile
-from .serializers import PDFFileSerializer
+from .models import Chat
+from .serializers import ChatSerializer, PdfFileSerializer
 from django.http import FileResponse 
 from django.http import HttpResponse
 # from .openai_utils import generate_openai_response  # Import the OpenAI function
@@ -13,28 +13,46 @@ from .langchain import langchain_openai
 @permission_classes([AllowAny])
 def pdf_upload_view(request):
     if request.method == 'POST':
-        file_serializer = PDFFileSerializer(data=request.data)
+        chat_serializer = ChatSerializer(data=request.data)
 
-        if file_serializer.is_valid():
-            file_serializer.save()
-            return Response({'pdf_data': file_serializer.data}, status=status.HTTP_201_CREATED)
+        if chat_serializer.is_valid():
+            chat_serializer.save()
+            return Response({'pdf_data': chat_serializer.data}, status=status.HTTP_201_CREATED)
 
-        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(chat_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def pdf_upload_view(request):
+    if request.method == 'POST':
+        pdf_file_serializer = ChatSerializer(data=request.data)
+
+        if pdf_file_serializer.is_valid():
+            pdf_file_serializer.save()
+            return Response({'chat_data': pdf_file_serializer.data}, status=status.HTTP_201_CREATED)
+
+        return Response(pdf_file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_pdf_view(request, pdfId):
     try:
-        pdf_file = PDFFile.objects.get(id=pdfId)
-    except PDFFile.DoesNotExist:
-        return Response({'error': 'PDF file not found'}, status=status.HTTP_404_NOT_FOUND)
+        chat = Chat.objects.get(id=pdfId)
+    except Chat.DoesNotExist:
+        return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    response = FileResponse(pdf_file.file, content_type='application/pdf')
-    # response['Content-Disposition'] = f'inline; filename="{pdf_file.filename}"'
+    response = FileResponse(chat.pdf_file, content_type='application/pdf')
+    # response['Content-Disposition'] = f'inline; filename="{chat.filename}"'
 
     return response
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Chat
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -42,14 +60,47 @@ def chat_view(request):
     if request.method == 'POST':
         try:
             question = request.data.get('question')
-            pdfID = request.data.get('pdfId')
-            pdf_file = PDFFile.objects.get(id=pdfID)
-        except PDFFile.DoesNotExist:
-            return Response({'error': 'PDF file not found'}, status=status.HTTP_404_NOT_FOUND)
-        # file_serializer = PDFFileSerializer(data=request.data)
+            chatId = request.data.get('chatId')
+            chat = Chat.objects.get(id=chatId)
+        except Chat.DoesNotExist:
+            return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        response = langchain_openai(pdf_file.file, question)
+        response = langchain_openai(chat.pdf_file, question)
+        
+        # Extract question and answer from the response
+        question_text = response.get('question')
+        answer_text = response.get('answer')
+
+        # print(f"QUESTION_TEXT: {question_text}")
+        # print(f"ANSWER_TEXT: {answer_text}")
+
+        # Append question and answer to chat_history
+        chat_history = chat.chat_history
+        chat_history.append(question_text)
+        chat_history.append(answer_text)
+        # print(f"CHAT_HISTORY LIST BEFORE SAVING: {chat_history}")
+        chat.chat_history = chat_history
+        chat.save()
+        # print(f"CHAT_HISTORY LIST AFTER SAVING: {chat.chat_history}")
 
         return Response(response)
+
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def chat_view(request):
+#     if request.method == 'POST':
+#         try:
+#             question = request.data.get('question')
+#             chatId = request.data.get('chatId')
+#             chat = Chat.objects.get(id=chatId)
+#         except Chat.DoesNotExist:
+#             return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
+#         # chat_serializer = ChatSerializer(data=request.data)
+        
+#         response = langchain_openai(chat.pdf_file, question)
+
+#         return Response(response)
 
 

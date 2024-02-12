@@ -1,7 +1,16 @@
 from rest_framework import serializers
-from .models import PDFFile
+from .models import Chat
 
-class PDFFileSerializer(serializers.ModelSerializer):
+class ChatSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PDFFile
+        model = Chat
         fields = '__all__'
+
+
+
+
+
+class PdfFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['pdf_file']

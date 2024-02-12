@@ -20,6 +20,7 @@ const NewProject = () => {
     onDrop: async (acceptedFiles) => {
       const file = acceptedFiles[0];
       setUploadedFile(file);
+      // console.log("UPLOADED FILE IS: --------------->>>>>", uploadedFile);
       let url = "/upload-pdf/";
 
       try {
@@ -35,13 +36,13 @@ const NewProject = () => {
           // response.data.id = response.data.id;
           console.log(
             "This is the ID of the uploaded file: ",
-            response.data.pdf_data["file"]
+            response.data.chat_data["id"]
           );
           // setUploadedFile(response.data);
-          setpdfID(response.data.pdf_data["id"]);
+          setpdfID(response.data.chat_data["id"]);
           navigate("/project-view", {
             state: {
-              pdfID: response.data.pdf_data["id"],
+              chatID: response.data.chat_data["id"],
               pdfFile: uploadedFile,
             },
           });

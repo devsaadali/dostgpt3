@@ -12,8 +12,8 @@ const ProjectView = () => {
   const [alert, setAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const [pdfID, setPdfID] = useState(location.state.pdfID);
-  // const pdfUrl = `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${pdfID}/`;
+  const [chatID, setChatID] = useState(location.state.chatID);
+  // const pdfUrl = `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${chatID}/`;
   const [question, setQuestion] = useState("");
   const [chatResponse, setChatResponse] = useState(null);
   const [page, setPage] = useState(1);
@@ -41,7 +41,7 @@ const ProjectView = () => {
   const get_pdf = async () => {
     let url = "/get-pdf/";
     try {
-      const response = await axios_get_call(url, pdfID, setLoading, setAlert);
+      const response = await axios_get_call(url, chatID, setLoading, setAlert);
 
       if (response.status === 200) {
         console.log("File RETRIEVED successfully", response);
@@ -74,7 +74,7 @@ const ProjectView = () => {
         setQuestion("");
         const response = await axios_chat_call(
           url,
-          pdfID,
+          chatID,
           question,
           setLoading,
           setAlert
@@ -249,16 +249,16 @@ const ProjectView = () => {
             overflow: "auto",
           }}
         >
-          <PDFViewer
+          {/* <PDFViewer
             hideZoom
             hideNavbar
             hideRotation
             onLoadSuccess={handleLoadSuccess}
             document={{
-              url: `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${pdfID}/`,
+              url: `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${chatID}/`,
             }}
             scale={0.9}
-          />
+          /> */}
         </Box>
       </Box>
     </Box>
