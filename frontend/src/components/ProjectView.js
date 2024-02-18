@@ -1,56 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { axios_get_call, axios_chat_call } from "./AxiosCall";
 import PDFViewer from "pdf-viewer-reactjs";
 import { useLocation } from "react-router-dom";
 import SendIcon from "@mui/icons-material/Send";
-// import axios from "./axios";
-// import { useCallback } from "react";
 
 const ProjectView = () => {
-  const [pdfData, setPdfData] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
   const [alert, setAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const [chatID, setChatID] = useState(location.state.chatID);
-  // const pdfUrl = `${process.env.REACT_APP_BACKEND_URL}/get-pdf/${chatID}/`;
   const [question, setQuestion] = useState("");
-  const [chatResponse, setChatResponse] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
   const [sent, setSent] = useState(false);
-  const [chatState, setChatState] = useState([]);
-  let chat_list = [];
-  // let page = 1;
+  const [recieved, setReceived] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  function nextPage() {
-    if (page < totalPages) {
-      page = page + 1;
-    }
-  }
-  function previousPage() {
-    if (page > 0) {
-      page = page - 1;
-    }
-  }
-
-  const handleLoadSuccess = ({ numPages }) => {
-    setTotalPages(numPages);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const get_pdf = async () => {
-    let url = "/get-pdf/";
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory, recieved]);
+
+  const get_chat_history = async () => {
+    let url = "/get-chat-history/";
     try {
       const response = await axios_get_call(url, chatID, setLoading, setAlert);
 
       if (response.status === 200) {
-        console.log("File RETRIEVED successfully", response);
-        setPdfData(response);
+        console.log("Chat History RETRIEVED successfully", response.data);
+        setChatHistory(response.data);
+        setReceived(true);
       } else {
-        console.error("File RETRIEVAL failed");
+        console.error("Chat History RETRIEVAL failed");
       }
     } catch (error) {
-      console.error("Error RETRIEVING file", error);
+      console.error("Error RETRIEVING Chat History", error);
     }
   };
 
@@ -61,16 +48,11 @@ const ProjectView = () => {
 
   const send_message = async () => {
     let url = "/send-message/";
-    console.log("In SEND_MESSAGE FUNCTION");
 
     if (question !== "") {
       try {
-        chat_list = chatState;
-        chat_list.push(question);
-        setChatState(chat_list);
-        console.log("chat_list", chat_list);
-        console.log("chatState", chatState);
-        // setSent(true);
+        const updatedChatHistory = [...chatHistory, question];
+        setChatHistory(updatedChatHistory);
         setQuestion("");
         const response = await axios_chat_call(
           url,
@@ -81,12 +63,7 @@ const ProjectView = () => {
         );
 
         if (response.status === 200) {
-          chat_list.push(response.data.answer);
-          setChatState(chat_list);
-          setChatResponse(response.data);
-          console.log("RESPONSE VALUE IS: ", response);
-          console.log("CHAT LIST VALUE IS: ", chat_list);
-          console.log("CHAT STATE VALUE IS: ", chatState);
+          setChatHistory(response.data);
         } else {
           console.error("Chat send failed");
         }
@@ -96,7 +73,10 @@ const ProjectView = () => {
     }
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setReceived(false);
+    get_chat_history();
+  }, []);
 
   return (
     <Box
@@ -125,7 +105,6 @@ const ProjectView = () => {
           sx={{
             width: "50%",
             height: "100%",
-            // border: "2px solid red",
             display: "flex",
             flexDirection: "column",
           }}
@@ -134,12 +113,9 @@ const ProjectView = () => {
             sx={{
               overflow: "auto",
               height: "100%",
-              // border: "1px solid black",
               marginX: "10px",
               display: "flex",
-              // flexDirection: "column",
-              // justifyContent: "flex-end",
-              // alignItems: "flex-end",
+              flexDirection: "column-reverse",
             }}
           >
             <Box
@@ -147,51 +123,46 @@ const ProjectView = () => {
                 width: "100%",
               }}
             >
-              {chatState.map((message, index) => {
-                if (index % 2 === 0) {
-                  return (
-                    <Paper sx={{ padding: "5px", width: "100%" }}>
-                      <Typography
-                        sx={{
-                          background: "rgb(83, 135, 140)",
-                          color: "white",
-                          paddingX: "20px",
-                          paddingY: "10px",
-                          borderRadius: "5px",
-                          width: "100%",
-                        }}
-                      >
-                        <strong style={{ color: "white" }}>You:</strong>
-                        {"   "}
-                        {chatState[index]}
-                      </Typography>
-                    </Paper>
-                  );
-                } else {
-                  return (
-                    <Paper
-                      sx={{ padding: "5px", marginY: "5px", width: "100%" }}
+              {recieved &&
+                chatHistory.map((message, index) => (
+                  <Paper
+                    key={index}
+                    sx={{
+                      padding: "5px",
+                      width: "100%",
+                      backgroundColor:
+                        index % 2 === 0
+                          ? "rgb(83, 135, 140)"
+                          : "rgb(71, 80, 99)",
+                      color: "white",
+                      paddingX: "20px",
+                      paddingY: "10px",
+                      borderRadius: "5px",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    {/* <Typography>
+                      <strong style={{ color: "white" }}>
+                        {index % 2 === 0 ? "You:" : "Response:"}
+                      </strong>{" "}
+                      {message}
+                    </Typography> */}
+                    <Typography
+                      style={{
+                        fontFamily: "Ubuntu, sans-serif",
+                        // fontWeight: "bold",
+                        color: "white",
+                      }}
                     >
-                      <Typography
-                        sx={{
-                          background: "rgb(71, 80, 99)",
-                          color: "white",
-                          paddingX: "20px",
-                          paddingY: "10px",
-                          // marginY: "10px",
-                          borderRadius: "5px",
-                          width: "100%",
-                        }}
-                      >
-                        <strong style={{ color: "white" }}>Response:</strong>
-                        {"   "}
-                        {/* {chatResponse.answer} */}
-                        {chatState[index]}
-                      </Typography>
-                    </Paper>
-                  );
-                }
-              })}
+                      <strong style={{ color: "white" }}>
+                        {index % 2 === 0 ? "You:" : "Response:"}
+                      </strong>
+                      {"  "}
+                      {message}
+                    </Typography>
+                  </Paper>
+                ))}
+              <div ref={messagesEndRef} />
             </Box>
           </Box>
           <Box
@@ -226,7 +197,6 @@ const ProjectView = () => {
               />
               <Button
                 sx={{
-                  // border: "1px solid",
                   height: "100%",
                   width: "5%",
                   padding: "0px",
